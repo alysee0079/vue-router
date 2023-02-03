@@ -4,7 +4,7 @@ import Regexp from 'path-to-regexp'
 import { cleanPath } from './util/path'
 import { assert, warn } from './util/warn'
 
-export function createRouteMap (
+export function createRouteMap(
   routes: Array<RouteConfig>,
   oldPathList?: Array<string>,
   oldPathMap?: Dictionary<RouteRecord>,
@@ -13,16 +13,20 @@ export function createRouteMap (
 ): {
   pathList: Array<string>,
   pathMap: Dictionary<RouteRecord>,
-  nameMap: Dictionary<RouteRecord>
+  nameMap: Dictionary<RouteRecord>,
 } {
+  // 全部路由 path
   // the path list is used to control path matching priority
   const pathList: Array<string> = oldPathList || []
+  // 路由 path 与路由记录的映射
   // $flow-disable-line
   const pathMap: Dictionary<RouteRecord> = oldPathMap || Object.create(null)
+  // 路由 name 与路由记录的映射
   // $flow-disable-line
   const nameMap: Dictionary<RouteRecord> = oldNameMap || Object.create(null)
 
-  routes.forEach(route => {
+  routes.forEach((route) => {
+    //  pathMap, nameMap 添加路由记录
     addRouteRecord(pathList, pathMap, nameMap, route, parentRoute)
   })
 
@@ -38,23 +42,28 @@ export function createRouteMap (
   if (process.env.NODE_ENV === 'development') {
     // warn if routes do not include leading slashes
     const found = pathList
-    // check for missing leading slash
-      .filter(path => path && path.charAt(0) !== '*' && path.charAt(0) !== '/')
+      // check for missing leading slash
+      .filter(
+        (path) => path && path.charAt(0) !== '*' && path.charAt(0) !== '/'
+      )
 
     if (found.length > 0) {
-      const pathNames = found.map(path => `- ${path}`).join('\n')
-      warn(false, `Non-nested routes must include a leading slash character. Fix the following routes: \n${pathNames}`)
+      const pathNames = found.map((path) => `- ${path}`).join('\n')
+      warn(
+        false,
+        `Non-nested routes must include a leading slash character. Fix the following routes: \n${pathNames}`
+      )
     }
   }
 
   return {
     pathList,
     pathMap,
-    nameMap
+    nameMap,
   }
 }
 
-function addRouteRecord (
+function addRouteRecord(
   pathList: Array<string>,
   pathMap: Dictionary<RouteRecord>,
   nameMap: Dictionary<RouteRecord>,
@@ -83,12 +92,14 @@ function addRouteRecord (
 
   const pathToRegexpOptions: PathToRegexpOptions =
     route.pathToRegexpOptions || {}
+  // 处理成完成的 path
   const normalizedPath = normalizePath(path, parent, pathToRegexpOptions.strict)
 
   if (typeof route.caseSensitive === 'boolean') {
     pathToRegexpOptions.sensitive = route.caseSensitive
   }
 
+  // 将每一个路由对象进行扩展(路由记录)
   const record: RouteRecord = {
     path: normalizedPath,
     regex: compileRouteRegex(normalizedPath, pathToRegexpOptions),
@@ -110,8 +121,8 @@ function addRouteRecord (
       route.props == null
         ? {}
         : route.components
-          ? route.props
-          : { default: route.props }
+        ? route.props
+        : { default: route.props },
   }
 
   if (route.children) {
@@ -122,21 +133,20 @@ function addRouteRecord (
       if (
         route.name &&
         !route.redirect &&
-        route.children.some(child => /^\/?$/.test(child.path))
+        route.children.some((child) => /^\/?$/.test(child.path))
       ) {
         warn(
           false,
           `Named Route '${route.name}' has a default child route. ` +
-            `When navigating to this named route (:to="{name: '${
-              route.name
-            }'"), ` +
+            `When navigating to this named route (:to="{name: '${route.name}'"), ` +
             `the default child route will not be rendered. Remove the name from ` +
             `this route and use the name of the default child route for named ` +
             `links instead.`
         )
       }
     }
-    route.children.forEach(child => {
+    // 处理子路由
+    route.children.forEach((child) => {
       const childMatchAs = matchAs
         ? cleanPath(`${matchAs}/${child.path}`)
         : undefined
@@ -144,6 +154,7 @@ function addRouteRecord (
     })
   }
 
+  // 将路由 record 记录到 pathMap 中, path 记录到 pathList
   if (!pathMap[record.path]) {
     pathList.push(record.path)
     pathMap[record.path] = record
@@ -164,7 +175,7 @@ function addRouteRecord (
 
       const aliasRoute = {
         path: alias,
-        children: route.children
+        children: route.children,
       }
       addRouteRecord(
         pathList,
@@ -177,6 +188,7 @@ function addRouteRecord (
     }
   }
 
+  // 将路由 record 记录到 nameMap 中
   if (name) {
     if (!nameMap[name]) {
       nameMap[name] = record
@@ -190,14 +202,14 @@ function addRouteRecord (
   }
 }
 
-function compileRouteRegex (
+function compileRouteRegex(
   path: string,
   pathToRegexpOptions: PathToRegexpOptions
 ): RouteRegExp {
   const regex = Regexp(path, [], pathToRegexpOptions)
   if (process.env.NODE_ENV !== 'production') {
     const keys: any = Object.create(null)
-    regex.keys.forEach(key => {
+    regex.keys.forEach((key) => {
       warn(
         !keys[key.name],
         `Duplicate param keys in route with path: "${path}"`
@@ -208,7 +220,7 @@ function compileRouteRegex (
   return regex
 }
 
-function normalizePath (
+function normalizePath(
   path: string,
   parent?: RouteRecord,
   strict?: boolean

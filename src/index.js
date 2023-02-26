@@ -45,6 +45,7 @@ export default class VueRouter {
     this.beforeHooks = []
     this.resolveHooks = []
     this.afterHooks = []
+    // 创建路由映射
     this.matcher = createMatcher(options.routes || [], this)
 
     let mode = options.mode || 'hash'
@@ -83,6 +84,7 @@ export default class VueRouter {
     return this.history && this.history.current
   }
 
+  // 路由初始化
   init (app: any /* Vue component instance */) {
     process.env.NODE_ENV !== 'production' &&
       assert(
@@ -117,7 +119,7 @@ export default class VueRouter {
     const history = this.history
 
     if (history instanceof HTML5History || history instanceof HashHistory) {
-      const handleInitialScroll = routeOrError => {
+      const handleInitialScroll = (routeOrError) => {
         const from = history.current
         const expectScroll = this.options.scrollBehavior
         const supportsScroll = supportsPushState && expectScroll
@@ -126,7 +128,7 @@ export default class VueRouter {
           handleScroll(this, routeOrError, from, false)
         }
       }
-      const setupListeners = routeOrError => {
+      const setupListeners = (routeOrError) => {
         history.setupListeners()
         handleInitialScroll(routeOrError)
       }
@@ -137,8 +139,8 @@ export default class VueRouter {
       )
     }
 
-    history.listen(route => {
-      this.apps.forEach(app => {
+    history.listen((route) => {
+      this.apps.forEach((app) => {
         app._route = route
       })
     })
@@ -209,8 +211,8 @@ export default class VueRouter {
     }
     return [].concat.apply(
       [],
-      route.matched.map(m => {
-        return Object.keys(m.components).map(key => {
+      route.matched.map((m) => {
+        return Object.keys(m.components).map((key) => {
           return m.components[key]
         })
       })
@@ -227,7 +229,7 @@ export default class VueRouter {
     href: string,
     // for backwards compat
     normalizedTo: Location,
-    resolved: Route
+    resolved: Route,
   } {
     current = current || this.history.current
     const location = normalizeLocation(to, current, append, this)
@@ -258,7 +260,10 @@ export default class VueRouter {
 
   addRoutes (routes: Array<RouteConfig>) {
     if (process.env.NODE_ENV !== 'production') {
-      warn(false, 'router.addRoutes() is deprecated and has been removed in Vue Router 4. Use router.addRoute() instead.')
+      warn(
+        false,
+        'router.addRoutes() is deprecated and has been removed in Vue Router 4. Use router.addRoute() instead.'
+      )
     }
     this.matcher.addRoutes(routes)
     if (this.history.current !== START) {

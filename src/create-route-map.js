@@ -15,17 +15,21 @@ export function createRouteMap (
   pathMap: Dictionary<RouteRecord>,
   nameMap: Dictionary<RouteRecord>
 } {
+  // 全部路由 path
   // the path list is used to control path matching priority
   // 路由地址
   const pathList: Array<string> = oldPathList || []
+  // 路由 path 与路由记录的映射
   // $flow-disable-line
   // 路由地址对应路由信息
   const pathMap: Dictionary<RouteRecord> = oldPathMap || Object.create(null)
+  // 路由 name 与路由记录的映射
   // $flow-disable-line
   // 路由名称对应路由信息
   const nameMap: Dictionary<RouteRecord> = oldNameMap || Object.create(null)
 
   routes.forEach(route => {
+    //  pathMap, nameMap 添加路由记录
     addRouteRecord(pathList, pathMap, nameMap, route, parentRoute)
   })
 
@@ -89,12 +93,14 @@ function addRouteRecord (
 
   const pathToRegexpOptions: PathToRegexpOptions =
     route.pathToRegexpOptions || {}
+  // 处理成完成的 path
   const normalizedPath = normalizePath(path, parent, pathToRegexpOptions.strict)
 
   if (typeof route.caseSensitive === 'boolean') {
     pathToRegexpOptions.sensitive = route.caseSensitive
   }
 
+  // 将每一个路由对象进行扩展(路由记录)
   const record: RouteRecord = {
     path: normalizedPath,
     regex: compileRouteRegex(normalizedPath, pathToRegexpOptions),
@@ -140,6 +146,7 @@ function addRouteRecord (
         )
       }
     }
+    // 处理子路由
     route.children.forEach(child => {
       const childMatchAs = matchAs
         ? cleanPath(`${matchAs}/${child.path}`)
@@ -148,6 +155,7 @@ function addRouteRecord (
     })
   }
 
+  // 将路由 record 记录到 pathMap 中, path 记录到 pathList
   if (!pathMap[record.path]) {
     pathList.push(record.path)
     pathMap[record.path] = record
@@ -181,6 +189,7 @@ function addRouteRecord (
     }
   }
 
+  // 将路由 record 记录到 nameMap 中
   if (name) {
     if (!nameMap[name]) {
       nameMap[name] = record

@@ -57,14 +57,17 @@ export function createMatcher (
     return pathList.map(path => pathMap[path])
   }
 
+  // 根据路径匹配路由
   function match (
     raw: RawLocation,
     currentRoute?: Route,
     redirectedFrom?: Location
   ): Route {
+    // 根据当前路径计算 location({path, query, hash})
     const location = normalizeLocation(raw, currentRoute, false, router)
     const { name } = location
 
+    // 根据 name 创建路由对象
     if (name) {
       const record = nameMap[name]
       if (process.env.NODE_ENV !== 'production') {
@@ -94,6 +97,7 @@ export function createMatcher (
       )
       return _createRoute(record, location, redirectedFrom)
     } else if (location.path) {
+      // 根据 path 创建路由对象
       location.params = {}
       for (let i = 0; i < pathList.length; i++) {
         const path = pathList[i]
